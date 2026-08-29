@@ -1,0 +1,6 @@
+@Chronaiq_HostAddress = http://localhost:5047
+
+GET {{Chronaiq_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
