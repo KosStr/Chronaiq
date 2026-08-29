@@ -1,3 +1,8 @@
 <Solution>
-  <Project Path="Chronaiq/Chronaiq.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/Chronaiq.Domain/Chronaiq.Domain.csproj" />
+    <Project Path="src/Chronaiq.Application/Chronaiq.Application.csproj" />
+    <Project Path="src/Chronaiq.Infrastructure/Chronaiq.Infrastructure.csproj" />
+    <Project Path="src/Chronaiq.Api/Chronaiq.Api.csproj" />
+  </Folder>
 </Solution>

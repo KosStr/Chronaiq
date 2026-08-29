@@ -1,0 +1,101 @@
+@host = http://localhost:5099
+@userId = 00000000-0000-0000-0000-000000000000
+@budgetPlanId = 00000000-0000-0000-0000-000000000000
+
+### Health
+GET {{host}}/health
+
+### Create a user (copy the returned "id" into @userId above)
+POST {{host}}/api/users
+Content-Type: application/json
+
+{
+  "email": "ada@example.com",
+  "firstName": "Ada",
+  "lastName": "Lovelace",
+  "chronotype": "MorningLark",
+  "preferredWorkStart": "08:00:00",
+  "preferredWorkEnd": "16:00:00"
+}
+
+### Get the user
+GET {{host}}/api/users/{{userId}}
+
+### Ingest a Second Brain node (multipart; File is optional).
+# Enqueues embed+link work and returns 202 + correlationId to subscribe to on /hubs/agent.
+POST {{host}}/api/users/{{userId}}/brain/ingest
+Content-Type: multipart/form-data; boundary=----chronaiq
+
+------chronaiq
+Content-Disposition: form-data; name="Title"
+
+Distributed systems reading notes
+------chronaiq
+Content-Disposition: form-data; name="Content"
+
+Notes on consensus, Raft leader election, and quorum reads in Postgres clusters.
+------chronaiq
+Content-Disposition: form-data; name="SourceType"
+
+Document
+------chronaiq--
+
+### Semantic search across the Second Brain
+GET {{host}}/api/users/{{userId}}/brain/search?q=consensus%20and%20quorum&limit=5
+
+### Create a task
+POST {{host}}/api/users/{{userId}}/tasks
+Content-Type: application/json
+
+{
+  "title": "Design the pgvector index strategy",
+  "description": "Decide HNSW parameters",
+  "energyRequirement": 5,
+  "durationMinutes": 90
+}
+
+### Auto-schedule unscheduled tasks (chronotype-aware)
+POST {{host}}/api/users/{{userId}}/tasks/auto-schedule
+Content-Type: application/json
+
+{ "reschedule": false }
+
+### Create a budget plan (copy the returned "id" into @budgetPlanId above)
+POST {{host}}/api/users/{{userId}}/budgets
+Content-Type: application/json
+
+{
+  "name": "2026 Household",
+  "monthlyIncome": 6500.00,
+  "monthlySavingsTarget": 1200.00,
+  "startDate": "2026-01-01"
+}
+
+### Add a transaction
+POST {{host}}/api/budgets/{{budgetPlanId}}/transactions
+Content-Type: application/json
+
+{
+  "amount": 82.40,
+  "merchantName": "Whole Foods",
+  "category": "Groceries",
+  "transactionDate": "2026-03-05T12:00:00Z"
+}
+
+### Forecast spend (ML.NET) for the next 3 months
+GET {{host}}/api/budgets/{{budgetPlanId}}/forecast?horizon=3
+
+### Kick off a multi-agent conversation (202 + correlationId → subscribe on /hubs/agent)
+POST {{host}}/api/users/{{userId}}/agents/converse
+Content-Type: application/json
+
+{ "prompt": "Where should I focus this week across tasks, budget, and notes?" }
+
+### Async budget analysis via the agent pipeline
+POST {{host}}/api/users/{{userId}}/agents/analyze-budget
+Content-Type: application/json
+
+{ "budgetPlanId": "{{budgetPlanId}}" }
+
+### Async schedule via the agent pipeline
+POST {{host}}/api/users/{{userId}}/agents/schedule
